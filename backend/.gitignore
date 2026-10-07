@@ -28,3 +28,8 @@ staticfiles/
 face_recognizer.yml
 train-pics
 backend/ai/train-pics/
+
+__pycache__/
+
+backend/ai/models/*.pt
+backend/ai/face_recognizer.yml
