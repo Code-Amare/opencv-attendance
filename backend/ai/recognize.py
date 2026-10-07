@@ -3,7 +3,7 @@ import cv2
 
 face_recognizer = cv2.face.LBPHFaceRecognizer_create()
 face_recognizer.read("face_recognizer.yml")
-face_model = YOLO("yolov11m-face.pt").to("cuda")
+face_model = YOLO("models/yolov11m-face.pt").to("cuda")
 
 folders = {1: "Amare", 2: "Temesgen", 3: "Alazar", 4: "Misgana"}
 
