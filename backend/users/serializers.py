@@ -23,3 +23,25 @@ class UserSerializer(serializers.ModelSerializer):
             "email_verified",
             "two_factor_enabled",
         ]
+
+
+class BulkUserSerializer(serializers.ListSerializer):
+    child = UserSerializer()
+
+    def create(self, validated_data):
+        users = [User(**data) for data in validated_data]
+        return User.objects.bulk_create(users)
+
+
+class UserCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = [
+            "username",
+            "email",
+            "first_name",
+            "last_name",
+            "section",
+            "phone_number",
+        ]
+        list_serializer_class = BulkUserSerializer
