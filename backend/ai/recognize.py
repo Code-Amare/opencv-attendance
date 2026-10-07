@@ -1,11 +1,21 @@
 from ultralytics import YOLO
 import cv2
+import os
+
+folders = os.listdir("./train-pics")
+print(int("37c452c0-4e8c-4c02-a156-239526f99e5e"))
+exit()
 
 face_recognizer = cv2.face.LBPHFaceRecognizer_create()
 face_recognizer.read("face_recognizer.yml")
 face_model = YOLO("models/yolov11m-face.pt").to("cuda")
 
-folders = {1: "Amare", 2: "Temesgen", 3: "Alazar", 4: "Misgana"}
+users = {
+    "37c452c0-4e8c-4c02-a156-239526f99e5e": "Alazar",
+    "992c2a60-f26e-4b9c-921c-993a37861b9d": "Amare",
+    "688152a4-6425-4464-8a50-e0476395e86c": "Misgana",
+    "7d6cfd41-191d-40ac-8396-7a11c25c6343": "Temesgen",
+}
 
 max_distance = 70
 
