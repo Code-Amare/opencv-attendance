@@ -26,3 +26,5 @@ staticfiles/
 *.iml
 
 face_recognizer.yml
+train-pics
+backend/ai/train-pics/
