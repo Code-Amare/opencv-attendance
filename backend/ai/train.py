@@ -8,14 +8,19 @@ face_recognizer = cv2.face.LBPHFaceRecognizer_create()
 
 folder_path = "train-pics/"
 
-folders = {1: "Amare=992c2a60-f26e-4b9c-921c-993a37861b9d", 2: "Temesgen=7d6cfd41-191d-40ac-8396-7a11c25c6343", 3: "Alazar=37c452c0-4e8c-4c02-a156-239526f99e5e", 4: "Misgana=688152a4-6425-4464-8a50-e0476395e86c"}
+folders = os.listdir("./train-pics")
+
+user_ids = {
+    int(folder.split("=")[1]): folder.split("=")[0]
+    for folder in folders
+}
 
 processed_image = []
 faces = []
 labels = []
 
 
-for label, folder in folders.items():
+for label, folder in user_ids.items():
     files = os.listdir(folder_path + folder)
     for file in files:
         image = cv2.imread(folder_path + folder + "/" + file)
