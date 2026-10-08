@@ -44,7 +44,7 @@ class EvaluateAttendanceView(APIView):
         else:
             attendance_status = Attendance.Status.ABSENT
 
-        created, attendance = Attendance.objects.get_or_create(
+        attendance, created = Attendance.objects.get_or_create(
             user=user,
             session=session,
             defaults={
@@ -60,6 +60,8 @@ class EvaluateAttendanceView(APIView):
                 },
                 status=status.HTTP_200_OK,
             )
+
+        print(attendance)
 
         return Response(
             {
@@ -91,3 +93,16 @@ class CreateSessionView(APIView):
             AttendanceSessionSerializer(session).data,
             status=status.HTTP_201_CREATED,
         )
+
+
+class AttendanceListView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        serializer = AttendanceSessionSerializer(
+            AttendanceSession.objects.all(), many=True
+        )
+
+        if serializer:
+            return Response({"sessions": serializer.data}, status=status.HTTP_200_OK)
+        return Response({"detail": "No attendance found"}, status=status.HTTP_200_OK)
