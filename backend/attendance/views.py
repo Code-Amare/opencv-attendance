@@ -6,7 +6,7 @@ from django.contrib.auth import get_user_model
 from django.utils import timezone
 
 from .models import Attendance, AttendanceSession
-from .serializers import AttendanceSerializer
+from .serializers import AttendanceSerializer, AttendanceSessionSerializer
 
 User = get_user_model()
 
@@ -66,5 +66,28 @@ class EvaluateAttendanceView(APIView):
                 "attendance": AttendanceSerializer(attendance).data,
                 "is_attendance_taken_before": False,
             },
+            status=status.HTTP_201_CREATED,
+        )
+
+
+class CreateSessionView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = AttendanceSessionSerializer(data=request.data)
+
+        if not serializer.is_valid():
+            return Response(
+                serializer.errors,
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        session = serializer.save(
+            created_by=request.user,
+            status=AttendanceSession.Status.ACTIVE,
+        )
+
+        return Response(
+            AttendanceSessionSerializer(session).data,
             status=status.HTTP_201_CREATED,
         )
