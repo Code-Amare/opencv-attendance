@@ -28,6 +28,9 @@ print("Loaded users:")
 print(users)
 
 
+attendance_taken = set()
+
+
 def send_attendance(user_id):
     try:
         response = requests.post(
@@ -40,7 +43,13 @@ def send_attendance(user_id):
         )
 
         if response.status_code in (200, 201):
-            print(f"Attendance recorded for user {user_id}")
+            data = response.json()
+
+            if data.get("is_attendance_taken_before"):
+                print(f"Attendance already recorded for user {user_id}")
+            else:
+                print(f"Attendance recorded for user {user_id}")
+
             return True
 
         print(
@@ -134,7 +143,6 @@ while True:
                 face_states[track_id] = {
                     "user_id": None,
                     "streak": 0,
-                    "attendance_sent": False,
                 }
 
             state = face_states[track_id]
@@ -146,9 +154,11 @@ while True:
                 else:
                     state["user_id"] = user_id
                     state["streak"] = 1
-                    state["attendance_sent"] = False
 
-                if state["streak"] >= REQUIRED_FRAMES and not state["attendance_sent"]:
+                if (
+                    state["streak"] >= REQUIRED_FRAMES
+                    and user_id not in attendance_taken
+                ):
                     print(
                         f"CONFIRMED: "
                         f"{name} | "
@@ -159,19 +169,32 @@ while True:
                     attendance_success = send_attendance(user_id)
 
                     if attendance_success:
-                        state["attendance_sent"] = True
+                        attendance_taken.add(user_id)
 
-            else:
-                state["user_id"] = None
-                state["streak"] = 0
-                state["attendance_sent"] = False
+        if recognized and user_id in attendance_taken:
 
-        if track_id is not None and track_id in face_states:
-            streak = face_states[track_id]["streak"]
+            box_color = (0, 255, 0)
+
+            label = f"{name} | Attendance recorded!"
+
         else:
-            streak = 0
 
-        label = f"{name} | " f"{distance:.0f} | " f"{streak}/{REQUIRED_FRAMES}"
+            box_color = (255, 255, 255)
+
+            if track_id is not None and track_id in face_states:
+                streak = face_states[track_id]["streak"]
+            else:
+                streak = 0
+
+            label = f"{name} | " f"{distance:.0f} | " f"{streak}/{REQUIRED_FRAMES}"
+
+        cv2.rectangle(
+            processed_image,
+            (left, top),
+            (right, bottom),
+            box_color,
+            2,
+        )
 
         cv2.putText(
             processed_image,
@@ -179,7 +202,7 @@ while True:
             (left, bottom + 25),
             cv2.FONT_HERSHEY_SIMPLEX,
             0.7,
-            (255, 255, 255),
+            box_color,
             2,
         )
 
