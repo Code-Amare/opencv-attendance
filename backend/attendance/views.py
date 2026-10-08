@@ -7,6 +7,7 @@ from django.utils import timezone
 
 from .models import Attendance, AttendanceSession
 from .serializers import AttendanceSerializer, AttendanceSessionSerializer
+from users.serializers import UserSerializer
 
 User = get_user_model()
 
@@ -106,3 +107,23 @@ class AttendanceListView(APIView):
         if serializer:
             return Response({"sessions": serializer.data}, status=status.HTTP_200_OK)
         return Response({"detail": "No attendance found"}, status=status.HTTP_200_OK)
+
+
+class UserAttendanceDetailView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, user_id):
+        user = User.objects.filter(id=user_id).first()
+        if not user:
+            return Response(
+                {"error": "Invalid user_id"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        attendances = user.attendances
+        return Response(
+            {
+                "user": UserSerializer(user).data,
+                "attendances": AttendanceSerializer(attendances, many=True).data,
+            },
+            status=status.HTTP_200_OK,
+        )
