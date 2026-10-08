@@ -4,6 +4,8 @@ from rest_framework import status
 from rest_framework.permissions import AllowAny
 from django.contrib.auth import get_user_model
 
+from .models import Attendance, AttendanceSession
+
 User = get_user_model()
 
 
@@ -25,3 +27,16 @@ class EvaluateAttendanceView(APIView):
             return Response(
                 {"error": "Invalid user_id"}, status=status.HTTP_400_BAD_REQUEST
             )
+
+        session = AttendanceSession.objects.filter(id=session_id).first()
+        if not session:
+            return Response(
+                {"error": "Invalid session_id"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        created, attendance = Attendance.objects.get_or_create(
+            user=user,
+            session=session,
+        )
+
+        

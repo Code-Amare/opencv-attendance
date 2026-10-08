@@ -1,5 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.utils import timezone
+from datetime import timedelta
 
 User = get_user_model()
 
@@ -21,6 +23,7 @@ class AttendanceSession(models.Model):
     name = models.CharField(max_length=255)
     started_at = models.DateTimeField()
     ended_at = models.DateTimeField(null=True, blank=True)
+    late_time = models.DurationField(default=timedelta(minutes=10))
     status = models.CharField(
         max_length=20,
         choices=Status.choices,
@@ -28,6 +31,16 @@ class AttendanceSession(models.Model):
     )
 
     created_at = models.DateTimeField(auto_now_add=True)
+
+    @property
+    def is_ended(self):
+        if self.status in {
+            self.Status.COMPLETED,
+            self.Status.CANCELLED,
+        }:
+            return True
+
+        return timezone.now() >= self.scheduled_end_at
 
     class Meta:
         ordering = ["-started_at"]
@@ -40,6 +53,7 @@ class Attendance(models.Model):
     class Status(models.TextChoices):
         PRESENT = "present", "Present"
         LATE = "late", "Late"
+        ABSENT = "absent", "Absent"
 
     session = models.ForeignKey(
         AttendanceSession,
