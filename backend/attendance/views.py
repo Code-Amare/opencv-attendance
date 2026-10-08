@@ -5,6 +5,7 @@ from rest_framework.permissions import AllowAny
 from django.contrib.auth import get_user_model
 
 from .models import Attendance, AttendanceSession
+from .serializers import AttendanceSerializer
 
 User = get_user_model()
 
@@ -39,4 +40,11 @@ class EvaluateAttendanceView(APIView):
             session=session,
         )
 
-        
+        if not created:
+            return Response(
+                {
+                    "attendance": AttendanceSerializer(attendance).data,
+                    "is_attendance_taken_before": True,
+                },
+                status=status.HTTP_200_OK,
+            )
