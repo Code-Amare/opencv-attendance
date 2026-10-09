@@ -28,6 +28,7 @@ staticfiles/
 face_recognizer.yml
 train-pics
 backend/ai/train-pics/
+backend/ai/face_embeddings.npz
 
 __pycache__/
 
